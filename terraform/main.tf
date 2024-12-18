@@ -42,10 +42,6 @@ resource "azurerm_storage_container" "gold" {
   container_access_type = "private"
 }
 
-# Outputs
-output "storage_account_name" {
-  value = azurerm_storage_account.datalake.name
-}
 
 output "bronze_container_url" {
   value = azurerm_storage_container.bronze.id
