@@ -26,7 +26,7 @@ resource "azurerm_storage_account" "datalake" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
-  enable_hierarchical_namespace = true  # Enable Data Lake Gen2 features
+  is_hns_enabled = true  # Enable Data Lake Gen2 features
 
   tags = {
     environment = "dev"
