@@ -1,3 +1,13 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.0"  # Ensure a version >= 2.0.0
+    }
+  }
+  required_version = ">= 1.0.0"
+}
+
 provider "azurerm" {
   features {}
 }
@@ -42,7 +52,7 @@ resource "azurerm_storage_container" "gold" {
   container_access_type = "private"
 }
 
-
+# Outputs
 output "bronze_container_url" {
   value = azurerm_storage_container.bronze.id
 }
