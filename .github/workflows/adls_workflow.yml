@@ -1,0 +1,60 @@
+name: Deploy Azure Data Lake
+
+on:
+  push:
+    paths:
+      - "raw_data/**"    # Trigger only when files in the raw_data folder change
+      - "terraform/**"   # Trigger when Terraform configs change
+
+jobs:
+  deploy-adls:
+    name: Deploy Azure Data Lake Storage
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Step 2: Authenticate with Azure CLI
+    - name: Authenticate with Azure CLI
+      run: az login --use-device-code
+
+    # Step 3: Set up Terraform
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.6
+
+    # Step 4: Initialize Terraform
+    - name: Terraform Init
+      run: terraform -chdir=terraform init
+
+    # Step 5: Plan Terraform changes
+    - name: Terraform Plan
+      run: terraform -chdir=terraform plan
+
+    # Step 6: Apply Terraform changes
+    - name: Terraform Apply
+      run: terraform -chdir=terraform apply -auto-approve
+
+  upload-data:
+    name: Upload Data to Bronze Layer
+    needs: deploy-adls
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Step 2: Azure CLI Login
+    - name: Authenticate with Azure CLI
+      run: az login --use-device-code
+
+    # Step 3: Upload files to Bronze Layer
+    - name: Upload files to Bronze Layer
+      run: |
+        for file in raw_data/*; do
+          az storage blob upload --account-name datalaketfexample --container-name bronze --file "$file" --name "$(basename "$file")"
+        done
